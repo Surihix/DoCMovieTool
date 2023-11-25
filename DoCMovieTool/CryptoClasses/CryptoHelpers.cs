@@ -3,9 +3,9 @@ using static DoCMovieTool.SupportClasses.ToolHelpers;
 
 namespace DoCMovieTool.CryptoClasses
 {
-    internal class CryptoHelpers
+    internal static class CryptoHelpers
     {
-        public static byte[] DetermineKeyArray(FileRegion fileRegion)
+        public static uint[] DetermineKeyArray(this FileRegion fileRegion)
         {
             uint[] keyArray = new uint[] { };
 
@@ -31,7 +31,7 @@ namespace DoCMovieTool.CryptoClasses
             return keyArray;
         }
 
-        public static uint UShortsToUInt(ushort value1, ushort value2)
+        public static uint UShortsToUInt(this ushort value1, ushort value2)
         {
             return Convert.ToUInt32(value1.ToString("X4") + "" + value2.ToString("X4"), 16);
         }

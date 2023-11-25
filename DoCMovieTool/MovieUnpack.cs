@@ -21,7 +21,7 @@ namespace DoCMovieTool
             Console.WriteLine("");
 
             var fileRegion = NamesDict.ArchiveNames[Path.GetFileName(inFile)];
-            var keyArray = CryptoHelpers.DetermineKeyArray(fileRegion);
+            var keyArray = fileRegion.DetermineKeyArray();
 
             using (var inFileStream = new FileStream(inFile, FileMode.Open, FileAccess.Read))
             {
@@ -95,13 +95,13 @@ namespace DoCMovieTool
                             fileCounter++;
                         }
 
-                        Decryption.DecryptFiles(fileCount, extractDir, tocFileReader);
+                        Decryption.DecryptFiles(extractDir, tocFileReader, keyArray);
                     }
                 }
             }
 
             Console.WriteLine("");
-            Console.WriteLine("Done");
+            Console.WriteLine($"Finished unpacking file '{Path.GetFileName(inFile)}'");
             Console.ReadLine();
         }
     }
