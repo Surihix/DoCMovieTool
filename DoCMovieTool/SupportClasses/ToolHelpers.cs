@@ -38,7 +38,8 @@ namespace DoCMovieTool.SupportClasses
             JORG,
             JINT,
             NA,
-            EU
+            EU,
+            Unknown
         }
 
 

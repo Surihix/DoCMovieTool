@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using static DoCMovieTool.SupportClasses.ToolHelpers;
 
 namespace DoCMovieTool
@@ -28,6 +29,10 @@ namespace DoCMovieTool
             switch (toolActionSwitch)
             {
                 case ActionSwitches.u:
+                    if (!File.Exists(inFileOrDir))
+                    {
+                        ExitType.Error.ExitProgram("Specified file does not exist");
+                    }
                     MovieUnpack.UnpackProcess(inFileOrDir);
                     break;
 

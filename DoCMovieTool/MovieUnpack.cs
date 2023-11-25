@@ -95,14 +95,13 @@ namespace DoCMovieTool
                             fileCounter++;
                         }
 
-                        Decryption.DecryptFiles(extractDir, tocFileReader, keyArray);
+                        Decryption.DecryptFiles(fileCount, extractDir, tocFileReader, keyArray);
                     }
                 }
             }
 
             Console.WriteLine("");
-            Console.WriteLine($"Finished unpacking file '{Path.GetFileName(inFile)}'");
-            Console.ReadLine();
+            ExitType.Success.ExitProgram($"Finished unpacking file '{Path.GetFileName(inFile)}'");
         }
     }
 }

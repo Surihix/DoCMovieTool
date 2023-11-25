@@ -18,7 +18,7 @@ namespace DoCMovieTool.CryptoClasses
         static uint CurrentKeyArrayVal1;
         static uint CurrentKeyArrayVal2;
 
-        public static void DecryptFiles(string extractDir, BinaryReader tocFileReader, uint[] keyArray)
+        public static void DecryptFiles(uint fileCount, string extractDir, BinaryReader tocFileReader, uint[] keyArray)
         {
             Console.WriteLine("");
 
@@ -26,11 +26,9 @@ namespace DoCMovieTool.CryptoClasses
             long readPos = 28;
             int fileCounter = 1;
 
-            var extractDirMovies = Directory.GetFiles(extractDir, "MOVIEDATA_*.bin");
-
-            for (int d = 0; d < extractDirMovies.Length; d++)
+            for (int d = 0; d < fileCount; d++)
             {
-                var currentFile = Path.Combine(extractDir, Path.GetFileName(extractDirMovies[d]));
+                var currentFile = Path.Combine(extractDir, $"MOVIEDATA_{fileCounter}.bin" );
                 var decryptedOutFile = Path.Combine(extractDir, $"{Path.GetFileNameWithoutExtension(currentFile)}.dec");
 
                 Console.WriteLine($"Decrypting '{Path.GetFileName(currentFile)}'....");
