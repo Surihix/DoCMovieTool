@@ -85,8 +85,23 @@ namespace DoCMovieTool
                             {
                                 Console.WriteLine($"Unpacking '{Path.GetFileName(movieFile)}'....");
 
-                                inFileStream.Seek(movieInfo.Start, SeekOrigin.Begin);
-                                inFileStream.ExCopyTo(movieStream, movieInfo.Size);
+                                if (movieInfo.Size % 16 != 0)
+                                {
+                                    inFileStream.Seek(movieInfo.Start, SeekOrigin.Begin);
+                                    inFileStream.ExCopyTo(movieStream, movieInfo.Size - 4);
+
+                                    var movieFooterFile = Path.Combine(extractDir, $"MOVIEFOOTER_{fileCounter}.bin");
+                                    using (var movieFooterStream = new FileStream(movieFooterFile, FileMode.OpenOrCreate, FileAccess.Write))
+                                    {
+                                        inFileStream.ExCopyTo(movieFooterStream, 4);
+                                    }
+                                }
+                                else
+                                {
+                                    inFileStream.Seek(movieInfo.Start, SeekOrigin.Begin);
+                                    inFileStream.ExCopyTo(movieStream, movieInfo.Size);
+                                }
+
                                 Console.WriteLine("");
                             }
 
@@ -95,6 +110,7 @@ namespace DoCMovieTool
                             fileCounter++;
                         }
 
+                        Console.WriteLine("");
                         Decryption.DecryptFiles(fileCount, extractDir, tocFileReader, keyArray);
                     }
                 }
