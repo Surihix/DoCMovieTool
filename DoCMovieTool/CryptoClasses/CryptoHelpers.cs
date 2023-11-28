@@ -1,5 +1,5 @@
 ﻿using System;
-using static DoCMovieTool.SupportClasses.ToolHelpers;
+using static DoCMovieTool.SupportClasses.ToolEnums;
 
 namespace DoCMovieTool.CryptoClasses
 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using static DoCMovieTool.SupportClasses.ToolEnums;
 using static DoCMovieTool.SupportClasses.ToolHelpers;
 
 namespace DoCMovieTool
@@ -37,7 +38,11 @@ namespace DoCMovieTool
                     break;
 
                 case ActionSwitches.r:
-                    ExitType.Error.ExitProgram("Unimplemented");
+                    if (!Directory.Exists(inFileOrDir))
+                    {
+                        ExitType.Error.ExitProgram("Specified folder does not exist");
+                    }
+                    MovieRepack.RepackProcess(inFileOrDir);
                     break;
             }
         }

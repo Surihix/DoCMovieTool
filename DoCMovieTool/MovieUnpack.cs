@@ -3,6 +3,7 @@ using DoCMovieTool.SupportClasses;
 using System;
 using System.IO;
 using static DoCMovieTool.SupportClasses.FileStructs;
+using static DoCMovieTool.SupportClasses.ToolEnums;
 using static DoCMovieTool.SupportClasses.ToolHelpers;
 
 namespace DoCMovieTool
@@ -15,7 +16,7 @@ namespace DoCMovieTool
 
             if (!NamesDict.ArchiveNames.ContainsKey(movieArchiveName))
             {
-                ExitType.Error.ExitProgram("Specified filename does not match with valid movie file archive names.\nCheck if the file was renamed from its original name.");
+                ExitType.Error.ExitProgram("Specified filename does not match with a valid movie file archive names.\nCheck if the file was renamed.");
             }
 
             Console.WriteLine("");
@@ -47,7 +48,7 @@ namespace DoCMovieTool
                     }
 
                     Console.WriteLine("");
-                    Console.WriteLine("Extracted TOC file. unpacking movie files....");
+                    Console.WriteLine("Unpacking movie files....");
                     Console.WriteLine("");
                     Console.WriteLine("");
 

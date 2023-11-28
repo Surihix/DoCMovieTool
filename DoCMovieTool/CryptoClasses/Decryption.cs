@@ -53,11 +53,11 @@ namespace DoCMovieTool.CryptoClasses
                     {
                         var remainder = bytesToProcess % 16;
                         bytesToProcess -= remainder;
+                    }
 
-                        if (bytesToProcess < 16)
-                        {
-                            computeBytes = false;
-                        }
+                    if (bytesToProcess < 16)
+                    {
+                        computeBytes = false;
                     }
 
                     long fileReadPos = 0;

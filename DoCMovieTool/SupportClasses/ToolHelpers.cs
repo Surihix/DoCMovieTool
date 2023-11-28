@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using static DoCMovieTool.SupportClasses.ToolEnums;
 
 namespace DoCMovieTool.SupportClasses
 {
@@ -26,23 +27,6 @@ namespace DoCMovieTool.SupportClasses
             Environment.Exit(0);
         }
 
-        public enum ExitType
-        {
-            Success,
-            Error
-        }
-
-
-        public enum FileRegion
-        {
-            JORG,
-            JINT,
-            NA,
-            EU,
-            Unknown
-        }
-
-
         public static void ExCopyTo(this Stream inStream, Stream outStream, long size)
         {
             int bufferSize = 81920;
@@ -57,6 +41,14 @@ namespace DoCMovieTool.SupportClasses
                 outStream.Write(copyArray, 0, (int)arraySize);
 
                 amountRemaining -= arraySize;
+            }
+        }
+
+        public static void IfFileExistsDel(this string fileToDelete)
+        {
+            if (File.Exists(fileToDelete))
+            {
+                File.Delete(fileToDelete);
             }
         }
     }
