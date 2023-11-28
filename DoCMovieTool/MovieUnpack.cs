@@ -2,7 +2,6 @@
 using DoCMovieTool.SupportClasses;
 using System;
 using System.IO;
-using static DoCMovieTool.SupportClasses.FileStructs;
 using static DoCMovieTool.SupportClasses.ToolEnums;
 using static DoCMovieTool.SupportClasses.ToolHelpers;
 
@@ -22,7 +21,8 @@ namespace DoCMovieTool
             Console.WriteLine("");
 
             var fileRegion = NamesDict.ArchiveNames[Path.GetFileName(inFile)];
-            var keyArray = fileRegion.DetermineKeyArray();
+            var cryptoVariables = new CryptoVariables();
+            cryptoVariables.KeyArray = fileRegion.DetermineKeyArray();
 
             using (var inFileStream = new FileStream(inFile, FileMode.Open, FileAccess.Read))
             {
@@ -55,7 +55,7 @@ namespace DoCMovieTool
 
                     using (var tocFileReader = new BinaryReader(File.Open(tocFile, FileMode.Open, FileAccess.Read)))
                     {
-                        var movieInfo = new MovieInfo();
+                        var movieVariables = new MovieVariables();
                         long readPos = 8;
                         long unkDataStart = new FileInfo(tocFile).Length;
                         long unkDataSize = 0;
@@ -64,11 +64,11 @@ namespace DoCMovieTool
                         for (int m = 0; m < fileCount; m++)
                         {
                             tocFileReader.BaseStream.Position = readPos;
-                            movieInfo.Start = tocFileReader.ReadUInt32() * 2048;
-                            movieInfo.Size = tocFileReader.ReadUInt32();
+                            movieVariables.Start = tocFileReader.ReadUInt32() * 2048;
+                            movieVariables.Size = tocFileReader.ReadUInt32();
 
                             // Unpack unk data
-                            unkDataSize = movieInfo.Start - unkDataStart;
+                            unkDataSize = movieVariables.Start - unkDataStart;
                             if (unkDataSize > 0)
                             {
                                 var unkDataFile = Path.Combine(extractDir, $"UNKDATA_{fileCounter}");
@@ -86,10 +86,10 @@ namespace DoCMovieTool
                             {
                                 Console.WriteLine($"Unpacking '{Path.GetFileName(movieFile)}'....");
 
-                                if (movieInfo.Size % 16 != 0)
+                                if (movieVariables.Size % 16 != 0)
                                 {
-                                    inFileStream.Seek(movieInfo.Start, SeekOrigin.Begin);
-                                    inFileStream.ExCopyTo(movieStream, movieInfo.Size - 4);
+                                    inFileStream.Seek(movieVariables.Start, SeekOrigin.Begin);
+                                    inFileStream.ExCopyTo(movieStream, movieVariables.Size - 4);
 
                                     var movieFooterFile = Path.Combine(extractDir, $"MOVIEFOOTER_{fileCounter}.bin");
                                     using (var movieFooterStream = new FileStream(movieFooterFile, FileMode.OpenOrCreate, FileAccess.Write))
@@ -99,20 +99,20 @@ namespace DoCMovieTool
                                 }
                                 else
                                 {
-                                    inFileStream.Seek(movieInfo.Start, SeekOrigin.Begin);
-                                    inFileStream.ExCopyTo(movieStream, movieInfo.Size);
+                                    inFileStream.Seek(movieVariables.Start, SeekOrigin.Begin);
+                                    inFileStream.ExCopyTo(movieStream, movieVariables.Size);
                                 }
 
                                 Console.WriteLine("");
                             }
 
                             readPos += 32;
-                            unkDataStart = movieInfo.Start + movieInfo.Size;
+                            unkDataStart = movieVariables.Start + movieVariables.Size;
                             fileCounter++;
                         }
 
                         Console.WriteLine("");
-                        Decryption.DecryptFiles(fileCount, extractDir, tocFileReader, keyArray);
+                        Decryption.DecryptFiles(fileCount, extractDir, tocFileReader, cryptoVariables);
                     }
                 }
             }

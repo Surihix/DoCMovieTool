@@ -43,14 +43,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DoCMovieTool\CryptoClasses\CryptoBase.cs" />
     <Compile Include="DoCMovieTool\CryptoClasses\CryptoHelpers.cs" />
+    <Compile Include="DoCMovieTool\CryptoClasses\CryptoVariables.cs" />
     <Compile Include="DoCMovieTool\CryptoClasses\Decryption.cs" />
     <Compile Include="DoCMovieTool\CryptoClasses\Encryption.cs" />
     <Compile Include="DoCMovieTool\CryptoClasses\KeyArrays.cs" />
     <Compile Include="DoCMovieTool\MovieRepack.cs" />
     <Compile Include="DoCMovieTool\MovieUnpack.cs" />
     <Compile Include="DoCMovieTool\Core.cs" />
-    <Compile Include="DoCMovieTool\SupportClasses\FileStructs.cs" />
+    <Compile Include="DoCMovieTool\MovieVariables.cs" />
     <Compile Include="DoCMovieTool\SupportClasses\NamesDict.cs" />
     <Compile Include="DoCMovieTool\SupportClasses\ToolEnums.cs" />
     <Compile Include="DoCMovieTool\SupportClasses\ToolHelpers.cs" />

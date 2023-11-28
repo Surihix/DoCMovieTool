@@ -2,7 +2,6 @@
 using DoCMovieTool.SupportClasses;
 using System;
 using System.IO;
-using static DoCMovieTool.SupportClasses.FileStructs;
 using static DoCMovieTool.SupportClasses.ToolEnums;
 
 namespace DoCMovieTool
@@ -21,7 +20,9 @@ namespace DoCMovieTool
             Console.WriteLine("");
 
             var fileRegion = NamesDict.ArchiveNames[newMovieArchiveName];
-            var keyArray = fileRegion.DetermineKeyArray();
+
+            var cryptoVariables = new CryptoVariables();
+            cryptoVariables.KeyArray = fileRegion.DetermineKeyArray();
 
             var tocFile = Path.Combine(extractedDir, "TOC");
             if (!File.Exists(tocFile))
@@ -59,8 +60,7 @@ namespace DoCMovieTool
                             tmpArchiveStream.WriteByte(0);
                         }
 
-                        var keyInfo = new KeyInfo();
-                        var movieInfo = new MovieInfo();
+                        var movieVariables = new MovieVariables();
                         long readPos = 28;
                         long writePos = 8;
                         var fileCounter = 1;
@@ -71,10 +71,10 @@ namespace DoCMovieTool
                         for (int f = 0; f < fileCount; f++)
                         {
                             tocFileReader.BaseStream.Position = readPos;
-                            keyInfo.MultiplyKey = tocFileReader.ReadUInt16();
-                            keyInfo.Key1 = tocFileReader.ReadUInt16();
-                            keyInfo.Key2 = tocFileReader.ReadUInt16();
-                            keyInfo.Key3 = tocFileReader.ReadUInt16();
+                            cryptoVariables.MultiplyKey = tocFileReader.ReadUInt16();
+                            cryptoVariables.Key1 = tocFileReader.ReadUInt16();
+                            cryptoVariables.Key2 = tocFileReader.ReadUInt16();
+                            cryptoVariables.Key3 = tocFileReader.ReadUInt16();
 
                             unkDataFile = Path.Combine(extractedDir, $"UNKDATA_{fileCounter}");
                             if (File.Exists(unkDataFile))
@@ -89,22 +89,22 @@ namespace DoCMovieTool
 
                             // Pad nulls if start position is 
                             // not divisible by 2048
-                            movieInfo.Start = (uint)tmpArchiveStream.Length;
-                            if (movieInfo.Start % 2048 != 0)
+                            movieVariables.Start = (uint)tmpArchiveStream.Length;
+                            if (movieVariables.Start % 2048 != 0)
                             {
-                                var remainder = movieInfo.Start % 2048;
+                                var remainder = movieVariables.Start % 2048;
                                 var increaseBytes = 2048 - remainder;
-                                var newPos = movieInfo.Start + increaseBytes;
-                                var nullAmount = newPos - movieInfo.Start;
+                                var newPos = movieVariables.Start + increaseBytes;
+                                var nullAmount = newPos - movieVariables.Start;
 
-                                movieInfo.Start = newPos;
+                                movieVariables.Start = newPos;
 
                                 for (int n = 0; n < nullAmount; n++)
                                 {
                                     tmpArchiveStream.WriteByte(0);
                                 }
                             }
-                            movieInfo.Start /= 2048;
+                            movieVariables.Start /= 2048;
 
                             // Encrypt
                             Console.WriteLine($"Encrypting 'MOVIEDATA_{fileCounter}.bin'....");
@@ -118,14 +118,14 @@ namespace DoCMovieTool
                                 ExitType.Error.ExitProgram($"Missing 'MOVIEDATA_{fileCounter}.bin' file");
                             }
 
-                            Encryption.EncryptFile(extractedDir, movieDataFile, tmpMovieDataFile, keyInfo, keyArray);
+                            Encryption.EncryptFile(movieDataFile, tmpMovieDataFile, cryptoVariables);
 
                             // Repack
                             Console.WriteLine($"Repacking 'MOVIEDATA_{fileCounter}.bin'....");
 
                             using (var tmpEncMovieDataStream = new FileStream(tmpMovieDataFile, FileMode.Open, FileAccess.Read))
                             {
-                                movieInfo.Size = (uint)tmpEncMovieDataStream.Length;
+                                movieVariables.Size = (uint)tmpEncMovieDataStream.Length;
                                 tmpEncMovieDataStream.Seek(0, SeekOrigin.Begin);
                                 tmpEncMovieDataStream.CopyTo(tmpArchiveStream);
                             }
@@ -135,7 +135,7 @@ namespace DoCMovieTool
                             {
                                 using (var movieFooterStream = new FileStream(movieFooterFile, FileMode.Open, FileAccess.Read))
                                 {
-                                    movieInfo.Size += (uint)movieFooterStream.Length;
+                                    movieVariables.Size += (uint)movieFooterStream.Length;
                                     movieFooterStream.Seek(0, SeekOrigin.Begin);
                                     movieFooterStream.CopyTo(tmpArchiveStream);
                                 }
@@ -145,8 +145,8 @@ namespace DoCMovieTool
                             tmpMovieDataFile.IfFileExistsDel();
 
                             tocFileWriter.BaseStream.Position = writePos;
-                            tocFileWriter.Write(movieInfo.Start);
-                            tocFileWriter.Write(movieInfo.Size);
+                            tocFileWriter.Write(movieVariables.Start);
+                            tocFileWriter.Write(movieVariables.Size);
 
                             Console.WriteLine("");
 
@@ -161,7 +161,10 @@ namespace DoCMovieTool
             Console.WriteLine("");
             Console.WriteLine("Rebuilding new archive....");
 
-            using (var newArchiveStream = new FileStream(Path.Combine(Path.GetDirectoryName(extractedDir), newMovieArchiveName + ".new"), FileMode.Append, FileAccess.Write))
+            var newMovieArchiveFile = Path.Combine(Path.GetDirectoryName(extractedDir), newMovieArchiveName);
+            newMovieArchiveFile.IfFileExistsDel();
+
+            using (var newArchiveStream = new FileStream(newMovieArchiveFile, FileMode.Append, FileAccess.Write))
             {
                 using (var newTOCstream = new FileStream(tmpTocFile, FileMode.Open, FileAccess.Read))
                 {
