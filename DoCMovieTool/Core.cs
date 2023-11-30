@@ -25,25 +25,31 @@ namespace DoCMovieTool
                 ExitType.Error.ExitProgram("Invalid action switch specified. Must be \"-u\" or \"-r\"");
             }
 
-            var inFileOrDir = args[1];
-
-            switch (toolActionSwitch)
+            try
             {
-                case ActionSwitches.u:
-                    if (!File.Exists(inFileOrDir))
-                    {
-                        ExitType.Error.ExitProgram("Specified file does not exist");
-                    }
-                    MovieUnpack.UnpackProcess(inFileOrDir);
-                    break;
+                switch (toolActionSwitch)
+                {
+                    case ActionSwitches.u:
+                        if (!File.Exists(args[1]))
+                        {
+                            ExitType.Error.ExitProgram("Specified file does not exist");
+                        }
+                        MovieUnpack.UnpackProcess(args[1]);
+                        break;
 
-                case ActionSwitches.r:
-                    if (!Directory.Exists(inFileOrDir))
-                    {
-                        ExitType.Error.ExitProgram("Specified folder does not exist");
-                    }
-                    MovieRepack.RepackProcess(inFileOrDir);
-                    break;
+                    case ActionSwitches.r:
+                        if (!Directory.Exists(args[1]))
+                        {
+                            ExitType.Error.ExitProgram("Specified folder does not exist");
+                        }
+                        MovieRepack.RepackProcess(args[1]);
+                        break;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ExitType.Error.ExitProgram($"An Exception has occured\n{ex}");
             }
         }
 
