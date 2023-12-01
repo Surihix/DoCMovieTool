@@ -46,6 +46,27 @@ namespace DoCMovieTool
                 Console.WriteLine("");
                 Console.WriteLine("");
 
+                var movieDataFilesArray = new string[fileCount];
+                var fileCounter = 1;
+
+                for (int a = 0; a < fileCount; a++)
+                {
+                    var fileInDir = Directory.GetFiles(extractedDir, $"MOVIEDATA_{fileCounter}.*", SearchOption.TopDirectoryOnly);
+                    if (fileInDir.Length > 1)
+                    {
+                        ExitType.Error.ExitProgram($"Detected one or more 'MOVIEDATA_{fileCounter}' files. remove the secondary files from the extracted folder.");
+                    }
+
+                    if (fileInDir.Length == 0)
+                    {
+                        ExitType.Error.ExitProgram($"Unable to locate a file beginning with the name 'MOVIEDATA_{fileCounter}'. ensure that this file is present in the extraced folder.");
+                    }
+
+                    movieDataFilesArray[a] = fileInDir[0];
+
+                    fileCounter++;
+                }
+
                 using (var tocFileWriter = new BinaryWriter(File.Open(tmpTocFile, FileMode.Open, FileAccess.Write)))
                 {
                     tmpArchiveFile.IfFileExistsDel();
@@ -60,7 +81,7 @@ namespace DoCMovieTool
 
                         long tocReadPos = 28;
                         long tocWritePos = 8;
-                        var fileCounter = 1;
+                        fileCounter = 1;
 
                         string unkDataFile;
                         string movieDataFile;
@@ -109,27 +130,22 @@ namespace DoCMovieTool
                             movieVariables.Start /= 2048;
 
 
-                            Console.WriteLine($"Encrypting MOVIEDATA_{fileCounter}.bin....");
+                            Console.WriteLine($"Encrypting MOVIEDATA_{fileCounter}....");
 
-                            movieDataFile = Path.Combine(extractedDir, $"MOVIEDATA_{fileCounter}.bin");
-                            tmpMovieDataFile = Path.Combine(extractedDir, $"TMP_{Path.GetFileName(movieDataFile)}");
+                            movieDataFile = movieDataFilesArray[f];
+                            tmpMovieDataFile = Path.Combine(extractedDir, $"TMP_MOVIEDATA_{fileCounter}");
                             tmpMovieDataFile.IfFileExistsDel();
-
-                            if (!File.Exists(movieDataFile))
-                            {
-                                ExitType.Error.ExitProgram($"Missing MOVIEDATA_{fileCounter}.bin file");
-                            }
 
                             Encryption.EncryptFile(movieDataFile, tmpMovieDataFile, cryptoVariables);
 
 
-                            Console.WriteLine($"Repacking MOVIEDATA_{fileCounter}.bin....");
+                            Console.WriteLine($"Repacking MOVIEDATA_{fileCounter}....");
 
-                            using (var tmpEncMovieDataStream = new FileStream(tmpMovieDataFile, FileMode.Open, FileAccess.Read))
+                            using (var tmpMovieDataStream = new FileStream(tmpMovieDataFile, FileMode.Open, FileAccess.Read))
                             {
-                                movieVariables.Size = (uint)tmpEncMovieDataStream.Length;
-                                tmpEncMovieDataStream.Seek(0, SeekOrigin.Begin);
-                                tmpEncMovieDataStream.CopyTo(tmpArchiveStream);
+                                movieVariables.Size = (uint)tmpMovieDataStream.Length;
+                                tmpMovieDataStream.Seek(0, SeekOrigin.Begin);
+                                tmpMovieDataStream.CopyTo(tmpArchiveStream);
                             }
 
 
@@ -145,6 +161,34 @@ namespace DoCMovieTool
                             tocReadPos += 32;
                             tocWritePos += 32;
                             fileCounter++;
+                        }
+
+                        if (tmpArchiveStream.Length % 2048 != 0)
+                        {
+                            unkDataFile = Path.Combine(extractedDir, $"UNKDATA_{fileCounter}");
+                            if (File.Exists(unkDataFile))
+                            {
+                                using (var lastPaddedDataStream = new FileStream(unkDataFile, FileMode.Open, FileAccess.Read))
+                                {
+                                    lastPaddedDataStream.Seek(0, SeekOrigin.Begin);
+                                    lastPaddedDataStream.CopyTo(tmpArchiveStream);
+                                }
+
+                                if (tmpArchiveStream.Length % 2048 != 0)
+                                {
+                                    PrepPadding(tmpArchiveStream.Length, tmpArchiveStream);
+                                }
+
+                                Console.WriteLine($"Repacked {Path.GetFileName(unkDataFile)}");
+                                Console.WriteLine("");
+                            }
+                            else
+                            {
+                                if (tmpArchiveStream.Length % 2048 != 0)
+                                {
+                                    PrepPadding(tmpArchiveStream.Length, tmpArchiveStream);
+                                }
+                            }
                         }
                     }
                 }
@@ -186,6 +230,16 @@ namespace DoCMovieTool
             {
                 streamToPad.WriteByte(0);
             }
+        }
+
+        static void PrepPadding(long startPos, FileStream tmpArchiveStream)
+        {
+            var remainder = startPos % 2048;
+            var increaseBytes = 2048 - remainder;
+            var newPos = startPos + increaseBytes;
+            var nullAmount = newPos - startPos;
+
+            PadNulls((uint)nullAmount, tmpArchiveStream);
         }
     }
 }

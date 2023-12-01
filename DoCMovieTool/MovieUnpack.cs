@@ -82,10 +82,10 @@ namespace DoCMovieTool
                                 }
                             }
 
-                            movieFile = Path.Combine(extractDir, $"MOVIEDATA_{fileCounter}.bin");
+                            movieFile = Path.Combine(extractDir, $"MOVIEDATA_{fileCounter}");
                             using (var movieStream = new FileStream(movieFile, FileMode.OpenOrCreate, FileAccess.Write))
                             {
-                                Console.WriteLine($"Unpacking {Path.GetFileName(movieFile)}....");
+                                Console.WriteLine($"Unpacking MOVIEDATA_{fileCounter}....");
 
                                 inFileStream.Seek(movieVariables.Start, SeekOrigin.Begin);
                                 inFileStream.ExCopyTo(movieStream, movieVariables.Size);
@@ -98,14 +98,25 @@ namespace DoCMovieTool
                             fileCounter++;
                         }
 
+                        if (inFileStream.Length > unkDataStart)
+                        {
+                            unkDataFile = Path.Combine(extractDir, $"UNKDATA_{fileCounter}");
+                            using (var lastpaddedDataStream = new FileStream(unkDataFile, FileMode.OpenOrCreate, FileAccess.Write))
+                            {
+                                inFileStream.Seek(unkDataStart, SeekOrigin.Begin);
+                                inFileStream.ExCopyTo(lastpaddedDataStream, unkDataSize);
+                            }
+
+                            Console.WriteLine($"Unpacked {Path.GetFileName(unkDataFile)}");
+                            Console.WriteLine("");
+                        }
+
                         Console.WriteLine("");
                         Console.WriteLine("Decrypting movie files....");
                         Console.WriteLine("");
                         Console.WriteLine("");
 
-                        var validMoviesTxtFile = Path.Combine(extractDir, "~VALID_MOVIES.txt");
-                        validMoviesTxtFile.IfFileExistsDel();
-                        Decryption.DecryptFiles(validMoviesTxtFile, fileCount, extractDir, tocFileReader, cryptoVariables);
+                        Decryption.DecryptFiles(fileCount, extractDir, tocFileReader, cryptoVariables);
                     }
                 }
             }
