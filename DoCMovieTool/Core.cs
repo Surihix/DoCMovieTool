@@ -9,7 +9,7 @@ namespace DoCMovieTool
     {
         static void Main(string[] args)
         {
-            if (args.Length > 2)
+            if (args.Length < 2)
             {
                 var exampleMsg = "Examples:\nDoCMovieTool.exe -u \"7570F45E.F7\"\nDoCMovieTool.exe -r \"_7570F45E.F7\"";
                 ExitType.Error.ExitProgram($"Enough arguments not specified\n{exampleMsg}");
