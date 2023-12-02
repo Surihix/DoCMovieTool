@@ -113,8 +113,6 @@ namespace DoCMovieTool
                                 Console.WriteLine($"Repacked {Path.GetFileName(unkDataFile)}");
                             }
 
-                            // Pad nulls if start position is 
-                            // not divisible by 2048
                             movieVariables.Start = (uint)tmpArchiveStream.Length;
                             if (movieVariables.Start % 2048 != 0)
                             {
@@ -129,7 +127,6 @@ namespace DoCMovieTool
                             }
                             movieVariables.Start /= 2048;
 
-
                             Console.WriteLine($"Encrypting MOVIEDATA_{fileCounter}....");
 
                             movieDataFile = movieDataFilesArray[f];
@@ -137,7 +134,6 @@ namespace DoCMovieTool
                             tmpMovieDataFile.IfFileExistsDel();
 
                             Encryption.EncryptFile(movieDataFile, tmpMovieDataFile, cryptoVariables);
-
 
                             Console.WriteLine($"Repacking MOVIEDATA_{fileCounter}....");
 
@@ -148,15 +144,13 @@ namespace DoCMovieTool
                                 tmpMovieDataStream.CopyTo(tmpArchiveStream);
                             }
 
+                            Console.WriteLine("");
 
-                            // Next file
                             tmpMovieDataFile.IfFileExistsDel();
 
                             tocFileWriter.BaseStream.Position = tocWritePos;
                             tocFileWriter.Write(movieVariables.Start);
                             tocFileWriter.Write(movieVariables.Size);
-
-                            Console.WriteLine("");
 
                             tocReadPos += 32;
                             tocWritePos += 32;
@@ -168,10 +162,10 @@ namespace DoCMovieTool
                             unkDataFile = Path.Combine(extractedDir, $"UNKDATA_{fileCounter}");
                             if (File.Exists(unkDataFile))
                             {
-                                using (var lastPaddedDataStream = new FileStream(unkDataFile, FileMode.Open, FileAccess.Read))
+                                using (var lastPaddedStream = new FileStream(unkDataFile, FileMode.Open, FileAccess.Read))
                                 {
-                                    lastPaddedDataStream.Seek(0, SeekOrigin.Begin);
-                                    lastPaddedDataStream.CopyTo(tmpArchiveStream);
+                                    lastPaddedStream.Seek(0, SeekOrigin.Begin);
+                                    lastPaddedStream.CopyTo(tmpArchiveStream);
                                 }
 
                                 if (tmpArchiveStream.Length % 2048 != 0)
@@ -237,9 +231,9 @@ namespace DoCMovieTool
             var remainder = startPos % 2048;
             var increaseBytes = 2048 - remainder;
             var newPos = startPos + increaseBytes;
-            var nullAmount = newPos - startPos;
+            var nullAmount = (uint)(newPos - startPos);
 
-            PadNulls((uint)nullAmount, tmpArchiveStream);
+            PadNulls(nullAmount, tmpArchiveStream);
         }
     }
 }

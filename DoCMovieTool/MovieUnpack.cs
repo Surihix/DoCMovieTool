@@ -15,7 +15,7 @@ namespace DoCMovieTool
 
             if (!NamesDict.ArchiveNames.ContainsKey(movieArchiveName))
             {
-                ExitType.Error.ExitProgram("Specified filename does not match with a valid movie file archive names.\nCheck if the file was renamed.");
+                ExitType.Error.ExitProgram("Specified filename does not match with valid movie file archive names.");
             }
 
             using (var inFileStream = new FileStream(inFile, FileMode.Open, FileAccess.Read))
@@ -33,6 +33,7 @@ namespace DoCMovieTool
                     {
                         Directory.Delete(extractDir, true);
                     }
+
                     Directory.CreateDirectory(extractDir);
 
                     var tocFile = Path.Combine(extractDir, "TOC");
