@@ -14,7 +14,7 @@ namespace DoCMovieTool
 
             if (!NamesDict.ArchiveNames.ContainsKey(newMovieArchiveName))
             {
-                ExitType.Error.ExitProgram("Specified foldername does not match with a valid movie file archive names.\nCheck if the extracted folder was renamed.");
+                ExitType.Error.ExitProgram("Specified foldername does not match with valid movie file archive names.");
             }
 
             var tocFile = Path.Combine(extractedDir, "TOC");
