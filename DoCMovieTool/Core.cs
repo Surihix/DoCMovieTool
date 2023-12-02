@@ -12,7 +12,7 @@ namespace DoCMovieTool
             if (args.Length < 2)
             {
                 var exampleMsg = "Examples:\nDoCMovieTool.exe -u \"23CFDD41.F7\"\nDoCMovieTool.exe -r \"_23CFDD41.F7\"";
-                ExitType.Error.ExitProgram($"Enough arguments not specified\n{exampleMsg}");
+                ExitType.Error.ExitProgram($"Enough arguments not specified\n\n{exampleMsg}");
             }
 
             var toolActionSwitch = new ActionSwitches();
