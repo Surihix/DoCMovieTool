@@ -1,5 +1,5 @@
 # DoCMovieTool
-This small tool allows you to unpack and repack the movie archive files from Dirge of Cerberus.
+This small tool allows you to unpack and repack Dirge of Cerberus game's movie archive files.
 
 # Important notes
 - This tool will only allow you to replace the existing files inside a movie archive.
