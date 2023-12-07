@@ -9,10 +9,16 @@ namespace DoCMovieTool
     {
         static void Main(string[] args)
         {
+            var exampleMsgArray = new string[]
+            {
+                "Examples:",
+                "To unpack a movie archive: DoCMovieTool.exe -u \"23CFDD41.F7\"",
+                "To repack a movie archive: DoCMovieTool.exe -r \"_23CFDD41.F7\""
+            };
+
             if (args.Length < 2)
             {
-                var exampleMsg = "Examples:\nDoCMovieTool.exe -u \"23CFDD41.F7\"\nDoCMovieTool.exe -r \"_23CFDD41.F7\"";
-                ExitType.Error.ExitProgram($"Enough arguments not specified\n\n{exampleMsg}");
+                ExitType.Error.ExitProgram($"Enough arguments not specified\n\n{string.Join("\n", exampleMsgArray)}");
             }
 
             var toolActionSwitch = new ActionSwitches();
@@ -45,7 +51,6 @@ namespace DoCMovieTool
                         MovieRepack.RepackProcess(args[1]);
                         break;
                 }
-
             }
             catch (Exception ex)
             {
